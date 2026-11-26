@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>C2C · Day 02 &amp; Day 03 — Flowcharts, C++ Build Pipeline (.cpp, .o, .exe) &amp; First C++ Program</title>
+<style>
+:root{--ink:#17283d;--muted:#62748a;--accent:#587fa8;--accent2:#8ca9c6;--pale:#eaf1f7;--pale2:#f4f7fa;--line:#dbe4ec;--white:#fff;--green:#547d70;--gold:#b08b55;--shadow:0 20px 55px #243c5514}
+*{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:hidden}
+body{margin:0;background:#f6f8fb;color:var(--ink);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;overflow-y:hidden}
+.top{min-height:64px;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid var(--line);gap:10px;flex-wrap:wrap}
+.brand{font-weight:800;letter-spacing:.09em;font-size:13px;white-space:nowrap}.brand span{color:var(--accent)}
+.topright{color:var(--muted);font-size:13px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.progress{height:4px;background:#e8edf2}.progress i{display:block;height:4px;width:0;background:var(--accent);transition:width .35s}
+.deck{height:calc(100dvh - 68px);display:flex;align-items:center;justify-content:center;padding:24px 86px;position:relative}
+.slide{display:none;width:min(100%,1020px);max-height:100%;overflow-y:auto;overflow-x:hidden;background:white;border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);padding:clamp(20px,3.6vw,44px);animation:appear .25s ease-out;-webkit-overflow-scrolling:touch}
+.slide.active{display:block}
+@keyframes appear{from{opacity:.6;transform:translateY(6px)}to{opacity:1;transform:none}}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--accent);text-transform:uppercase}
+.h1{font-size:clamp(22px,3.5vw,40px);line-height:1.16;margin:8px 0 14px;letter-spacing:-.03em;word-wrap:break-word}
+.lead{font-size:clamp(15.5px,1.9vw,18px);color:var(--muted);max-width:800px;margin:0 0 14px}
+.pill{display:inline-block;padding:5px 12px;border-radius:30px;background:var(--pale);color:var(--accent);font-weight:700;font-size:12px;margin:3px 4px 3px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:18px}
+.span2{grid-column:span 2}
+.card{background:var(--pale2);border:1px solid var(--line);border-radius:16px;padding:16px;min-width:0}
+.card h3{margin:0 0 8px;font-size:16.5px}
+.card p{margin:0;color:var(--muted);font-size:14.5px}
+.card.accent{background:#edf4fa;border-color:#c6daec}
+.callout{border-left:4px solid var(--accent);padding:13px 16px;background:#f1f6fa;border-radius:8px;margin:16px 0;font-size:14.5px;word-wrap:break-word}
+.callout.warn{border-left-color:var(--gold);background:#faf6ef}
+.callout.ok{border-left-color:var(--green);background:#eef5f2}
+.code{background:#17283d;color:#eaf2f8;padding:14px 16px;border-radius:14px;overflow-x:auto;font:13.5px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre;margin:10px 0;max-width:100%}
+.code .comment{color:#9eb8d1}
+.code .kw{color:#93c5fd;font-weight:700}
+.code .str{color:#fde68a}
+.code .pp{color:#86efac}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+.button{border:1px solid var(--line);background:white;color:var(--ink);padding:9px 14px;border-radius:11px;cursor:pointer;font-weight:700;font-size:14px;transition:background .15s,border-color .15s;touch-action:manipulation}
+.button:hover{background:var(--pale);border-color:var(--accent2)}
+.button.primary{background:var(--accent);color:white;border-color:var(--accent)}
+.button.primary:hover{background:#486d94}
+.button.active-tab{background:var(--ink);color:white;border-color:var(--ink)}
+.nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:#fff;box-shadow:var(--shadow);font-size:24px;cursor:pointer;color:var(--accent);display:grid;place-items:center;z-index:20;touch-action:manipulation}
+.nav:hover{background:var(--pale)}
+#prev{left:20px}#next{right:20px}
+.footer{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin-top:22px;padding-top:12px;border-top:1px solid var(--line)}
+.mini{font-size:13px;color:var(--muted)}
+.quiz-option{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;margin:8px 0;border:1px solid var(--line);border-radius:11px;cursor:pointer;background:#fff;font-size:14.5px}
+.quiz-option input{margin-top:4px;flex-shrink:0}
+.quiz-option:hover{background:var(--pale)}
+.feedback{font-weight:700;margin-top:10px;font-size:14.5px}
+.diagram{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px;margin:16px 0;width:100%}
+.diagram svg{max-width:100%;height:auto;display:block}
+.node{border:1.5px solid var(--accent2);background:#edf4fa;border-radius:12px;padding:12px 18px;font-weight:700;text-align:center;cursor:pointer;transition:background .15s,border-color .15s;touch-action:manipulation}
+.node:hover,.node.selected{background:var(--accent);color:#fff;border-color:var(--accent)}
+.arrow{color:var(--accent);font-size:20px;font-weight:800}
+.editable{border:1px solid var(--line);border-radius:12px;padding:13px;background:white;width:100%;font:14px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;min-height:175px;color:var(--ink)}
+.smallbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.hide{display:none}
+.table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:14px 0;border-radius:12px;border:1px solid var(--line)}
+.tbl{width:100%;border-collapse:collapse;margin:0;font-size:14.5px;min-width:580px}
+.tbl th{background:#17283d;color:#fff;text-align:left;padding:10px 12px;border-bottom:1px solid #17283d;white-space:nowrap}
+.tbl td{padding:9px 12px;border-top:1px solid var(--line);background:#fff;vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--pale2)}
+.inp-row{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:12px 0}
+.inp-box{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:700;color:var(--muted)}
+.inp-box input{padding:8px 10px;border:1px solid var(--line);border-radius:9px;width:88px;font-size:15px;color:var(--ink)}
+.trace-log{background:var(--pale2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:13.5px/1.6 ui-monospace,monospace;margin-top:10px;max-height:175px;overflow:auto;word-break:break-word}
+.stage-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.pdf-btn{background:#17283d;color:#fff;border:1px solid #17283d;padding:7px 13px;border-radius:10px;font-weight:700;font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;touch-action:manipulation}
+.pdf-btn:hover{background:var(--accent);border-color:var(--accent)}
+.slide-jump{padding:6px 10px;border-radius:9px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:12.5px;font-weight:600;max-width:210px}
+.mobile-bar{display:none}
+
+/* TABLET BREAKPOINT */
+@media(max-width:960px){
+  .deck{padding:18px 66px}
+  #prev{left:12px}#next{right:12px}
+  .grid3{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+/* MOBILE BREAKPOINT */
+@media(max-width:720px){
+  body{overflow-y:auto;padding-bottom:64px}
+  .top{padding:10px 14px;height:auto}
+  .topright{width:100%;justify-content:space-between}
+  .topright span.daylabel{display:none}
+  .slide-jump{flex:1;max-width:none;min-width:0}
+  .deck{height:auto;min-height:calc(100dvh - 122px);padding:12px 12px 20px;align-items:flex-start}
+  .slide{padding:18px 16px;border-radius:18px;max-height:none;overflow:visible}
+  .grid,.grid3,.two{grid-template-columns:1fr}
+  .span2{grid-column:span 1}
+  .nav{display:none}
+  .mobile-bar{position:fixed;bottom:0;left:0;right:0;height:56px;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 14px;z-index:50;box-shadow:0 -6px 20px #17283d0d}
+  .mobile-bar button{border:1px solid var(--line);background:var(--pale2);color:var(--ink);padding:8px 16px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer}
+  .mobile-bar button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .mobile-bar span{font-size:13px;font-weight:700;color:var(--muted)}
+  .pipeline-flow{flex-direction:column;gap:8px}
+  .pipeline-flow .node{width:100%}
+  .pipeline-flow .arrow{transform:rotate(90deg);font-size:18px;line-height:1}
+  .stage-tabs .button{flex:1 1 100%;text-align:center}
+  .inp-box input{width:76px}
+  .code{font-size:12.5px;padding:12px}
+  .footer span:first-child{font-size:12px}
+}
+
+/* PRINT / SAVE AS PDF STYLES — expands all slides cleanly into a printable PDF */
+@media print{
+  @page{size:A4 portrait;margin:14mm}
+  body{overflow:visible!important;background:#fff!important;padding:0!important}
+  .top,.progress,.nav,.mobile-bar,.smallbtns,.stage-tabs,.inp-row button,.pdf-btn{display:none!important}
+  .deck{display:block!important;height:auto!important;padding:0!important}
+  .slide{display:block!important;width:100%!important;max-height:none!important;overflow:visible!important;box-shadow:none!important;border:1px solid #cbd5e1!important;border-radius:12px!important;margin-bottom:18px!important;padding:20px!important;page-break-inside:avoid;break-inside:avoid;animation:none!important}
+  .table-wrap{overflow:visible!important;border:none!important}
+  .tbl{min-width:0!important}
+  .print-banner{display:block!important;text-align:center;padding:12px;margin-bottom:16px;border-bottom:2px solid #17283d}
+  .hide{display:block!important}
+}
+.print-banner{display:none}
+</style>
+</head>
+<body>
+
+<div class="print-banner">
+  <div style="font-size:12px;font-weight:800;letter-spacing:.14em;color:#587fa8">CODE TO CREATION (C2C DECK) · WEEK 01 ROADMAP</div>
+  <h1 style="margin:4px 0;font-size:22px;color:#17283d">Day 02 &amp; Day 03 — Flowcharts, C++ Build Pipeline (.cpp, .o, .exe) &amp; First C++ Program</h1>
+  <div style="font-size:12px;color:#62748a">Sessions 02 &amp; 03 · Decision Flow, Loop Arrows, Dry-Running, g++ Compilation Pipeline &amp; Blank-Screen C++</div>
+</div>
+
+<header class="top">
+  <div class="brand">CODE TO <span>CREATION</span> · LEARNING DECK</div>
+  <div class="topright">
+    <span class="daylabel">DAY 02 &amp; DAY 03 · W01 FOUNDATIONS</span>
+    <select id="slideSelect" class="slide-jump" aria-label="Jump to slide"></select>
+    <button class="pdf-btn" onclick="downloadPDF()" title="Export all slides as PDF">⬇ Download PDF</button>
+  </div>
+</header>
+<div class="progress"><i id="bar"></i></div>
+
+<main class="deck">
+<button class="nav" id="prev" aria-label="Previous slide">‹</button>
+<button class="nav" id="next" aria-label="Next slide">›</button>
+
+<!-- SLIDE 01: TITLE & ROADMAP -->
+<section class="slide active">
+  <div class="eyebrow">Week 01 · Sessions 02 &amp; 03 (26–27 Nov 2026)</div>
+  <h1 class="h1">Flowcharts, Dry-Running &amp;<br>Inside the C++ Build Pipeline</h1>
+  <p class="lead">Master visual decision &amp; loop flowcharts first—then uncover how <code>g++</code> turns your Source File (<code>.cpp</code>) into an Object File (<code>.o</code>) and Executable File (<code>.exe</code>) before typing your first blank-screen C++ program.</p>
+  <div style="margin:16px 0">
+    <span class="pill">Day 02: Decision &amp; Loop Flowcharts</span>
+    <span class="pill">3 Worked SVG Flowcharts</span>
+    <span class="pill">Day 03: g++ Internal Pipeline</span>
+    <span class="pill">Source (.cpp) → Object (.o) → Executable (.exe)</span>
+    <span class="pill">Blank-Screen C++ &amp; Data Types</span>
+  </div>
+  <div class="grid">
+    <div class="card accent">
+      <h3>Day 02 Target (Session 02)</h3>
+      <p>Translate pseudocode into standard flowcharts (Start/Stop, I/O parallelograms, Process boxes, Decision diamonds, Loop-back arrows) and dry-run edge cases.</p>
+    </div>
+    <div class="card">
+      <h3>Day 03 Target (Session 03)</h3>
+      <p>Understand how a <b>Source file (<code>.cpp</code>)</b> compiles into an <b>Object file (<code>.o</code>)</b> and links into an <b>Executable file (<code>.exe</code>)</b> before writing a clean C++ program from a blank screen.</p>
+    </div>
+  </div>
+  <div class="footer"><span>Swipe, use ← → keys, or click "Download PDF" to save notes</span><span>01 / 14</span></div>
+</section>
+
+<!-- SLIDE 02: FLOWCHART SYMBOLS & LOOP ANATOMY -->
+<section class="slide">
+  <div class="eyebrow">Day 02 · Flowchart Foundations</div>
+  <h1 class="h1">Standard Symbols &amp; Loop Arrows</h1>
+  <p class="lead">Every flowchart is a directed map. Using the exact shape tells the reader whether a step reads data, computes, branches, or repeats.</p>
+  <div class="grid3">
+    <div class="card">
+      <h3>Terminator (Oval)</h3>
+      <div class="diagram"><svg width="180" height="58" viewBox="0 0 180 58"><ellipse cx="90" cy="29" rx="68" ry="20" fill="#edf4fa" stroke="#587fa8" stroke-width="2"/><text x="90" y="34" text-anchor="middle" font-size="13" font-weight="700" fill="#17283d">START / END</text></svg></div>
+      <p>Marks entry and exit points of the algorithm.</p>
+    </div>
+    <div class="card">
+      <h3>Input / Output</h3>
+      <div class="diagram"><svg width="180" height="58" viewBox="0 0 180 58"><polygon points="40,11 155,11 140,47 25,47" fill="#edf4fa" stroke="#587fa8" stroke-width="2"/><text x="90" y="34" text-anchor="middle" font-size="13" font-weight="700" fill="#17283d">Input / Print</text></svg></div>
+      <p>Parallelogram: <code>cin</code> (reading) or <code>cout</code> (printing).</p>
+    </div>
+    <div class="card">
+      <h3>Process (Rectangle)</h3>
+      <div class="diagram"><svg width="180" height="58" viewBox="0 0 180 58"><rect x="28" y="11" width="124" height="36" rx="4" fill="#edf4fa" stroke="#587fa8" stroke-width="2"/><text x="90" y="34" text-anchor="middle" font-size="13" font-weight="700" fill="#17283d">sum = a + b</text></svg></div>
+      <p>Calculations, variable updates, and assignments.</p>
+    </div>
+    <div class="card">
+      <h3>Decision (Diamond)</h3>
+      <div class="diagram"><svg width="180" height="64" viewBox="0 0 180 64"><polygon points="90,4 156,32 90,60 24,32" fill="#faf6ef" stroke="#b08b55" stroke-width="2"/><text x="90" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#17283d">A &gt; B ?</text></svg></div>
+      <p>Evaluates a boolean condition with labeled <b>Yes</b> / <b>No</b> exits.</p>
+    </div>
+    <div class="card accent span2">
+      <h3>How a Loop Works in a Flowchart (Backward Flow Arrow)</h3>
+      <p style="margin-bottom:8px">A loop is simply a <b>Decision Diamond</b> whose <b>YES</b> branch executes a Process block and then draws an <b>upward arrow back above the diamond</b> to re-test the condition! Without an update step inside the loop, the upward arrow creates an infinite loop.</p>
+      <div class="mini"><b>4 Parts of Every Loop:</b> 1. Initialize counter → 2. Test condition (Diamond) → 3. Body &amp; Update counter → 4. Loop-back arrow to Step 2.</div>
+    </div>
+  </div>
+  <div class="footer"><span>Remember: Outputs always use Parallelograms, never Rectangles</span><span>02 / 14</span></div>
+</section>
+
+<!-- SLIDE 03: FLOWCHART Q1 — ADDITION OF NUMBERS -->
+<section class="slide">
+  <div class="eyebrow">Day 02 · Flowchart Question 01 (Sequence)</div>
+  <h1 class="h1">Q1: Addition of Three Numbers</h1>
+  <p class="lead">Read three numbers <code>A</code>, <code>B</code>, and <code>C</code>, compute their total sum, and display the result.</p>
+  <div class="two">
+    <div class="diagram" style="flex-direction:column;margin:0">
+      <svg id="svg-q1" width="360" height="410" viewBox="0 0 360 410" role="img" aria-label="Flowchart for addition of three numbers">
+        <defs>
+          <marker id="arr1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L6,3 z" fill="#587fa8"/>
+          </marker>
+        </defs>
+        <ellipse id="q1-s1" cx="180" cy="32" rx="75" ry="22" fill="#eef5f2" stroke="#547d70" stroke-width="2"/>
+        <text x="180" y="37" text-anchor="middle" font-size="14" font-weight="700" fill="#17283d">START</text>
+        <line x1="180" y1="54" x2="180" y2="86" stroke="#587fa8" stroke-width="2" marker-end="url(#arr1)"/>
+
+        <polygon id="q1-s2" points="95,86 285,86 265,134 75,134" fill="#edf4fa" stroke="#587fa8" stroke-width="2"/>
+        <text x="180" y="115" text-anchor="middle" font-size="14" font-weight="700" fill="#17283d">Input A, B, C</text>
+        <line x1="180" y1="134" x2="180" y2="170" stroke="#587fa8" stroke-width="2" marker-end="url(#arr1)"/>
+
+        <rect id="q1-s3" x="75" y="170" width="210" height="48" rx="6" fill="#f4f7fa" stroke="#587fa8" stroke-width="2"/>
+        <text x="180" y="199" text-anchor="middle" font-size="14" font-weight="700" fill="#17283d">Sum = A + B + C</text>
+        <line x1="180" y1="218" x2="180" y2="256" stroke="#587fa8" stroke-width="2" marker-end="url(#arr1)"/>
+
+        <polygon id="q1-s4" points="95,256 285,256 265,304 75,304" fill="#faf6ef" stroke="#b08b55" stroke-width="2"/>
+        <text x="180" y="285" text-anchor="middle" font-size="14" font-weight="700" fill="#17283d">Print Sum</text>
+        <line x1="180" y1="304" x2="180" y2="342" stroke="#587fa8" stroke-width="2" marker-end="url(#arr1)"/>
+
+        <ellipse id="q1-s5" cx="180" cy="364" rx="75" ry="22" fill="#eef5f2" stroke="#547d70" stroke-width="2"/>
+        <text x="180" y="369" text-anchor="middle" font-size="14" font-weight="700" fill="#17283d">END</text>
+      </svg>
+    </div>
+    <div>
+      <div class="card accent">
+        <h3>Interactive Dry-Run</h3>
+        <div class="inp-row">
+          <label class="inp-box">A <input type="number" id="q1-a" value="15"></label>
+          <label class="inp-box">B <input type="number" id="q1-b" value="27"></label>
+          <label class="inp-box">C <input type="number" id="q1-c" value="8"></label>
+          <button class="button primary" onclick="runQ1()">Trace Q1</button>
+        </div>
+        <div id="q1-out" class="trace-log">Click <b>Trace Q1</b> to walk through Input → Process → Output.</div>
+      </div>
+      <div class="code" style="margin-top:14px"><span class="comment">// Pseudocode for Q1</span>
+START
+  INPUT A, B, C
+  SET Sum = A + B + C
+  PRINT Sum
+END</div>
+      <div class="callout"><b>Key observation:</b> Pure sequential flow—zero diamonds, single top-to-bottom path, and a parallelogram for <code>Print Sum</code>.</div>
+    </div>
+  </div>
+  <div class="footer"><span>Question 1 of 3 · Sequential Flowchart</span><span>03 / 14</span></div>
+</section>
+
+<!-- SLIDE 04: FLOWCHART Q2 — WHICH ONE IS THE BIGGEST (3 NUMBERS) -->
+<section class="slide">
+  <div class="eyebrow">Day 02 · Flowchart Question 02 (Nested Branching)</div>
+  <h1 class="h1">Q2: Which One is the Biggest? (A, B, C)</h1>
+  <p class="lead">Compare three numbers using nested Decision Diamonds and output the largest using Parallelogram output blocks.</p>
+  <div class="two">
+    <div class="diagram" style="flex-direction:column;margin:0">
+      <svg width="540" height="430" viewBox="0 0 540 430" role="img" aria-label="Flowchart finding largest of three numbers">
+        <defs>
+          <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L6,3 z" fill="#587fa8"/>
+          </marker>
+        </defs>
+        <ellipse cx="185" cy="26" rx="68" ry="20" fill="#eef5f2" stroke="#547d70" stroke-width="2"/>
+        <text x="185" y="31" text-anchor="middle" font-size="13" font-weight="700" fill="#17283d">START</text>
+        <line x1="185" y1="46" x2="185" y2="70" stroke="#587fa8" stroke-width="2" marker-end="url(#arr2)"/>
+
+        <polygon points="115,70 275,70 255,112 95,112" fill="#edf4fa" stroke="#587fa8" stroke-width="2"/>
+        <text x="185" y="96" text-anchor="middle" font-size="13" font-weight="700" fill="#17283d">Input A, B, C</text>
+        <line x1="185" y1="112" x2="185" y2="136" stroke="#587fa8" stroke-width="2" marker-end="url(#arr2)"/>
+
+        <polygon id="q2-d1" points="185,136 255,176 185,216 115,176" fill="#faf6ef" stroke="#b08b55" stroke-width="2"/>
+        <text x="185" y="180" text-anchor="middle" font-size="13" font-weight="700" fill="#17283d">Is A &gt; B?</text>
+
+        <line x1="255" y1="176" x2="310" y2="176" stroke="#587fa8" stroke-width="2" marker-end="url(#arr2)"/>
+        <text x="278" y="168" font-size="12" font-weight="700" fill="#547d70">Yes</text>
+        <polygon id="q2-d2" points="375,136 440,176 375,216 310,176" fill="#faf6ef" stroke="#b08b55" stroke-width="2"/>
+        <text x="375" y="180" text-anchor="middle" font-size="13" font-weight="700" fill="#17283d">Is A &gt; C?</text>
+
+        <line x1="440" y1="176" x2="452" y2="176" stroke="#587fa8" stroke-width="2"/>
+        <line x1="452" y1="176" x2="452" y2="232" stroke="#587fa8" stroke-width="2" marker-end="url(#arr2)"/>
+        <text x="458" y="170" font-size="11" font-weight="700" fill="#547d70">Yes</text>
+        <polygon id="q2-outA" points="424,232 532,232 518,280 410,280" fill="#edf4fa" stroke="#587fa8" stroke-width="2"/>
+        <text x="471" y="253" text-anchor="middle" font-size="11.5" font-weight="700" fill="#17283d">Print A</text>
+        <text x="471" y="268" text-anchor="middle" font-size="11" fill="#17283d">is largest</text>
+
+        <line x1="375" y1="216" x2="375" y2="252" stroke="#587fa8" stroke-width="2" marker-end="url(#arr2)"/>
+        <text x="383" y="236" font-size="11" font-weight="700" fill="#b08b55">No</text>
+        <polygon id="q2-outC1" points="315,252 405,252 391,300 301,300" fill="#edf4fa" stroke="#587fa8" stroke-width="2"/>
+        <text x="353" y="273" text-anchor="middle" font-size="11.5" font-weight="700" fill="#17283d">Print C</text>
+        <text x="353" y="288" text-anchor="middle" font-size="11" fill="#17283d">is largest</text>
+
+        <line x1="185" y1="216" x2="185" y2="246" stroke="#587fa8" stroke-width="2" marker-end="url(#arr2)"/>
+        <text x="194" y="234" font-size="12" font-weight="700" fill="#b08b55">No</text>
+        <polygon id="q2-d3" points="185,246 255,286 185,326 115,286" fill="#faf6ef" stroke="#b08b55" stroke-width="2"/>
+        <text x="185" y="290" text-anchor="middle" font-size="13" font-weight="700" fill="#17283d">Is B &gt; C?</text>
+
+        <line x1="115" y1="286" x2="62" y2="286" stroke="#587fa8" stroke-width="2"/>
+        <line x1="62" y1="286" x2="62" y2="324" stroke="#587fa8" stroke-width="2" marker-end="url(#arr2)"/>
+        <text x="76" y="278" font-size="11" font-weight="700" fill="#547d70">Yes</text>
+        <polygon id="q2-outB" points="18,324 120,324 106,370 4,370" fill="#edf4fa" stroke="#587fa8" stroke-width="2"/>
+        <text x="62" y="344" text-anchor="middle" font-size="11.5" font-weight="700" fill="#17283d">Print B</text>
+        <text x="62" y="359" text-anchor="middle" font-size="11" fill="#17283d">is largest</text>
+
+        <line x1="255" y1="286" x2="270" y2="286" stroke="#587fa8" stroke-width="2"/>
+        <line x1="270" y1="286" x2="270" y2="324" stroke="#587fa8" stroke-width="2" marker-end="url(#arr2)"/>
+        <text x="256" y="278" font-size="11" font-weight="700" fill="#b08b55">No</text>
+        <polygon id="q2-outC2" points="222,324 324,324 310,370 208,370" fill="#edf4fa" stroke="#587fa8" stroke-width="2"/>
+        <text x="266" y="344" text-anchor="middle" font-size="11.5" font-weight="700" fill="#17283d">Print C</text>
+        <text x="266" y="359" text-anchor="middle" font-size="11" fill="#17283d">is largest</text>
+
+        <line x1="62" y1="370" x2="62" y2="392" stroke="#587fa8" stroke-width="1.8"/>
+        <line x1="266" y1="370" x2="266" y2="392" stroke="#587fa8" stroke-width="1.8"/>
+        <line x1="353" y1="300" x2="353" y2="392" stroke="#587fa8" stroke-width="1.8"/>
+        <line x1="471" y1="280" x2="471" y2="392" stroke="#587fa8" stroke-width="1.8"/>
+        <line x1="62" y1="392" x2="471" y2="392" stroke="#587fa8" stroke-width="1.8"/>
+        <line x1="210" y1="392" x2="210" y2="402" stroke="#587fa8" stroke-width="1.8" marker-end="url(#arr2)"/>
+        <ellipse cx="210" cy="415" rx="64" ry="13" fill="#eef5f2" stroke="#547d70" stroke-width="2"/>
+        <text x="210" y="420" text-anchor="middle" font-size="12" font-weight="700" fill="#17283d">END</text>
+      </svg>
+    </div>
+    <div>
+      <div class="card accent">
+        <h3>Interactive Decision Tracer</h3>
+        <div class="inp-row">
+          <label class="inp-box">A <input type="number" id="q2-a" value="42"></label>
+          <label class="inp-box">B <input type="number" id="q2-b" value="89"></label>
+          <label class="inp-box">C <input type="number" id="q2-c" value="64"></label>
+          <button class="button primary" onclick="runQ2()">Trace Path</button>
+        </div>
+        <div id="q2-out" class="trace-log">Enter any 3 numbers (including equal ties!) and click <b>Trace Path</b>.</div>
+      </div>
+      <div class="callout warn" style="margin-top:12px">
+        <b>Dry-Run Edge Case:</b> What if <code>A = 50, B = 50, C = 20</code>?
+        <br><code>Is 50 &gt; 50?</code> → <b>No</b> → goes to <code>Is 50 &gt; 20?</code> → <b>Yes</b> → Prints <b>B (50) is largest</b>! Even with ties, the correct maximum value is printed.
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Question 2 of 3 · Nested Decision Flowchart (Parallelogram Outputs)</span><span>04 / 14</span></div>
+</section>
+
+<!-- SLIDE 05: FLOWCHART Q3 — HOW A LOOP WORKS IN A FLOWCHART -->
+<section class="slide">
+  <div class="eyebrow">Day 02 · Flowchart Question 03 (Loop Back-Arrow)</div>
+  <h1 class="h1">Q3: How a Loop Works — Sum of 1 to N</h1>
+  <p class="lead">Watch how a backward arrow connects the loop body back to the condition diamond until <code>i &lt;= N</code> becomes <b>No</b>.</p>
+  <div class="two">
+    <div class="diagram" style="flex-direction:column;margin:0">
+      <svg width="430" height="440" viewBox="0 0 430 440" role="img" aria-label="Flowchart showing how a loop works to sum 1 to N">
+        <defs>
+          <marker id="arr3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L6,3 z" fill="#587fa8"/>
+          </marker>
+          <marker id="arrLoop" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L6,3 z" fill="#547d70"/>
+          </marker>
+        </defs>
+        <ellipse cx="215" cy="26" rx="68" ry="19" fill="#eef5f2" stroke="#547d70" stroke-width="2"/>
+        <text x="215" y="31" text-anchor="middle" font-size="13" font-weight="700" fill="#17283d">START</text>
+        <line x1="215" y1="45" x2="215" y2="68" stroke="#587fa8" stroke-width="2" marker-end="url(#arr3)"/>
+
+        <polygon points="145,68 305,68 285,108 125,108" fill="#edf4fa" stroke="#587fa8" stroke-width="2"/>
+        <text x="215" y="93" text-anchor="middle" font-size="13" font-weight="700" fill="#17283d">Input N</text>
+        <line x1="215" y1="108" x2="215" y2="132" stroke="#587fa8" stroke-width="2" marker-end="url(#arr3)"/>
+
+        <rect x="125" y="132" width="180" height="42" rx="6" fill="#f4f7fa" stroke="#587fa8" stroke-width="2"/>
+        <text x="215" y="158" text-anchor="middle" font-size="13" font-weight="700" fill="#17283d">sum = 0,  i = 1</text>
+        <line x1="215" y1="174" x2="215" y2="204" stroke="#587fa8" stroke-width="2" marker-end="url(#arr3)"/>
+
+        <polygon points="215,204 295,246 215,288 135,246" fill="#faf6ef" stroke="#b08b55" stroke-width="2.3"/>
+        <text x="215" y="250" text-anchor="middle" font-size="13.5" font-weight="700" fill="#17283d">Is i &lt;= N ?</text>
+
+        <line x1="215" y1="288" x2="215" y2="322" stroke="#547d70" stroke-width="2.2" marker-end="url(#arrLoop)"/>
+        <text x="226" y="309" font-size="12" font-weight="800" fill="#547d70">Yes (Repeat)</text>
+
+        <rect x="115" y="322" width="200" height="52" rx="6" fill="#eef5f2" stroke="#547d70" stroke-width="2"/>
+        <text x="215" y="344" text-anchor="middle" font-size="13" font-weight="700" fill="#17283d">sum = sum + i</text>
+        <text x="215" y="363" text-anchor="middle" font-size="13" font-weight="700" fill="#547d70">i = i + 1  (Update)</text>
+
+        <polyline points="115,348 48,348 48,190 215,190" fill="none" stroke="#547d70" stroke-width="2.3" marker-end="url(#arrLoop)"/>
+        <text x="14" y="274" font-size="11.5" font-weight="800" fill="#547d70" transform="rotate(-90 14,274)">LOOP BACK ARROW</text>
+
+        <line x1="295" y1="246" x2="368" y2="246" stroke="#b08b55" stroke-width="2"/>
+        <line x1="368" y1="246" x2="368" y2="322" stroke="#b08b55" stroke-width="2" marker-end="url(#arr3)"/>
+        <text x="303" y="238" font-size="12" font-weight="800" fill="#b08b55">No (Exit)</text>
+
+        <polygon points="322,322 424,322 410,368 308,368" fill="#edf4fa" stroke="#587fa8" stroke-width="2"/>
+        <text x="366" y="350" text-anchor="middle" font-size="12.5" font-weight="700" fill="#17283d">Print sum</text>
+
+        <line x1="366" y1="368" x2="366" y2="412" stroke="#587fa8" stroke-width="2"/>
+        <line x1="366" y1="412" x2="275" y2="412" stroke="#587fa8" stroke-width="2" marker-end="url(#arr3)"/>
+        <ellipse cx="215" cy="412" rx="58" ry="18" fill="#eef5f2" stroke="#547d70" stroke-width="2"/>
+        <text x="215" y="417" text-anchor="middle" font-size="13" font-weight="700" fill="#17283d">END</text>
+      </svg>
+    </div>
+    <div>
+      <div class="card accent">
+        <h3>Step-by-Step Iteration Dry-Run Table</h3>
+        <div class="inp-row">
+          <label class="inp-box">N (1 to 12) <input type="number" id="q3-n" value="4" min="0" max="12"></label>
+          <button class="button primary" onclick="runQ3()">Simulate Loop</button>
+        </div>
+        <div id="q3-out" class="trace-log">Click <b>Simulate Loop</b> to see every pass of the loop-back arrow!</div>
+      </div>
+      <div class="callout ok" style="margin-top:12px">
+        <b>Why the loop stops:</b> Each trip along the green loop-back arrow increases <code>i</code> by <code>1</code>. Once <code>i</code> reaches <code>N + 1</code>, <code>Is i &lt;= N?</code> becomes <b>No</b> and control exits right to <code>Print sum</code>.
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Question 3 of 3 · Iteration &amp; Backward Loop Arrow</span><span>05 / 14</span></div>
+</section>
+
+<!-- SLIDE 06: DAY 03 GATEWAY — BEFORE YOU HIT COMPILE -->
+<section class="slide">
+  <div class="eyebrow">Day 03 · Pre-Compile Architecture Gate</div>
+  <h1 class="h1">Before You Enter the Compile Screen:<br>How <code>g++</code> Builds Your Program</h1>
+  <p class="lead">A computer CPU cannot directly execute human-written C++ text. When you click Run or execute <code>g++ main.cpp -o main.exe</code>, your code passes through three essential file stages:</p>
+
+  <div class="diagram pipeline-flow" style="margin:24px 0">
+    <div class="node selected" id="st-0" onclick="selectStage(0)">1. Source File<br><code>main.cpp</code></div>
+    <div class="arrow">──(Compiler)──▶</div>
+    <div class="node" id="st-1" onclick="selectStage(1)">2. Object File<br><code>main.o</code></div>
+    <div class="arrow">──(Linker)──▶</div>
+    <div class="node" id="st-2" onclick="selectStage(2)">3. Executable File<br><code>main.exe</code></div>
+  </div>
+
+  <div id="stage-detail" class="card accent"></div>
+
+  <div class="callout" style="margin-top:14px">
+    <b>Terminal Commands Behind the Scenes:</b><br>
+    <code>g++ -c main.cpp -o main.o</code> (Compile Source File into Object File) &nbsp;|&nbsp;
+    <code>g++ main.o -o main.exe</code> (Link Object File + C++ Standard Library into Executable File)
+  </div>
+  <div class="footer"><span>Tap each file stage above to inspect its exact role</span><span>06 / 14</span></div>
+</section>
+
+<!-- SLIDE 07: DEEP DIVE ON SOURCE, OBJECT, AND EXECUTABLE FILES -->
+<section class="slide">
+  <div class="eyebrow">Day 03 · Build Files Explained</div>
+  <h1 class="h1">Source File (<code>.cpp</code>), Object File (<code>.o</code>) &amp; Executable (<code>.exe</code>)</h1>
+  <p class="lead">Every C++ student should know what each file contains and why an Object File cannot run on its own before Linking.</p>
+  <div class="table-wrap">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>File Type</th>
+          <th>Extension</th>
+          <th>Created By</th>
+          <th>Human Readable?</th>
+          <th>What Is Inside &amp; Why It Exists</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>Source File</b></td>
+          <td><b><code>.cpp</code></b></td>
+          <td>You (Code Editor)</td>
+          <td>Yes (C++ code)</td>
+          <td>Your human-written C++ program containing <code>#include &lt;iostream&gt;</code>, variables, logic, and <code>int main()</code>.</td>
+        </tr>
+        <tr>
+          <td><b>Object File</b></td>
+          <td><b><code>.o</code></b> / <code>.obj</code></td>
+          <td><b>Compiler</b><br>(<code>g++ -c main.cpp</code>)</td>
+          <td>No (Binary machine code)</td>
+          <td>Checks syntax &amp; types, expands headers, and translates your C++ logic into raw CPU machine code (<code>0</code>s and <code>1</code>s)—<b>but</b> external library calls like <code>std::cout</code> still have unresolved placeholder addresses.</td>
+        </tr>
+        <tr>
+          <td><b>Executable File</b></td>
+          <td><b><code>.exe</code></b></td>
+          <td><b>Linker</b><br>(<code>g++ main.o -o main.exe</code>)</td>
+          <td>No (OS-ready binary)</td>
+          <td>Connects your <code>main.o</code> with C++ Standard Library binaries (<code>libstdc++</code>), resolves all memory addresses, attaches OS startup headers, and produces a runnable program.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout warn">
+    <b>Compiler Error vs. Linker Error:</b> Missing semicolon <code>;</code> or wrong variable type → caught when building the <b>Object File (<code>.o</code>)</b>. Calling a declared function whose body was never written → caught when building the <b>Executable File (<code>.exe</code>)</b> as <code>undefined reference</code>!
+  </div>
+  <div class="footer"><span>Now you know what happens behind the Run button</span><span>07 / 14</span></div>
+</section>
+
+<!-- SLIDE 08: INTERACTIVE FILE INSPECTOR (.cpp -> .o -> .exe) -->
+<section class="slide">
+  <div class="eyebrow">Day 03 · Interactive File Inspector</div>
+  <h1 class="h1">Peek Inside <code>main.cpp</code> → <code>main.o</code> → <code>main.exe</code></h1>
+  <p class="lead">Switch tabs below to inspect how the exact same 7-line C++ program transforms from Source File to Object File to Executable File.</p>
+  <div class="stage-tabs">
+    <button class="button active-tab" id="tab-cpp" onclick="showArtifact('cpp')">Source File (main.cpp)</button>
+    <button class="button" id="tab-o" onclick="showArtifact('o')">Object File (main.o)</button>
+    <button class="button" id="tab-exe" onclick="showArtifact('exe')">Executable File (main.exe)</button>
+  </div>
+  <div id="artifact-view" class="code" style="min-height:220px"></div>
+  <div id="artifact-note" class="callout ok"></div>
+  <div class="footer"><span>Notice how std::cout is unresolved in main.o and gets linked in main.exe</span><span>08 / 14</span></div>
+</section>
+
+<!-- SLIDE 09: DAY 03 — FIRST C++ PROGRAM & BLANK-SCREEN DISCIPLINE -->
+<section class="slide">
+  <div class="eyebrow">Day 03 · Session 03 · Blank-Screen Discipline</div>
+  <h1 class="h1">Anatomy of Your First C++ Program</h1>
+  <p class="lead">Blank-screen discipline means typing every single line from memory—never copy-pasting boilerplate—and knowing why every token exists.</p>
+  <div class="two">
+    <div>
+      <div class="code"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="kw">int</span> main() {
+    <span class="kw">int</span> a, b;
+    cout &lt;&lt; <span class="str">"Enter two numbers: "</span>;
+    cin &gt;&gt; a &gt;&gt; b;
+
+    <span class="kw">int</span> sum = a + b;
+    cout &lt;&lt; <span class="str">"Sum = "</span> &lt;&lt; sum &lt;&lt; <span class="str">"\n"</span>;
+
+    <span class="kw">return</span> 0;
+}</div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:10px">
+        <h3><code>#include &lt;iostream&gt;</code></h3>
+        <p>Brings in <code>cin</code> (standard input) and <code>cout</code> (standard output) declarations so the compiler knows how to check them.</p>
+      </div>
+      <div class="card" style="margin-bottom:10px">
+        <h3><code>int main() { ... }</code></h3>
+        <p>Mandatory entry point where the OS begins executing <code>main.exe</code>. Every statement inside ends with a semicolon <code>;</code>.</p>
+      </div>
+      <div class="card" style="margin-bottom:10px">
+        <h3><code>cin &gt;&gt;</code> vs. <code>cout &lt;&lt;</code></h3>
+        <p><code>&gt;&gt;</code> extracts data from keyboard into a variable; <code>&lt;&lt;</code> inserts data onto the screen.</p>
+      </div>
+      <div class="card accent">
+        <h3><code>return 0;</code></h3>
+        <p>Signals to the operating system that <code>main.exe</code> finished cleanly with zero errors.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Rule: Never copy-paste your starter template during Week 1</span><span>09 / 14</span></div>
+</section>
+
+<!-- SLIDE 10: ESSENTIAL C++ DATA TYPES -->
+<section class="slide">
+  <div class="eyebrow">Day 03 · Core Data Types &amp; Memory Sizes</div>
+  <h1 class="h1">Mastering Essential C++ Data Types</h1>
+  <p class="lead">Choosing the right data type prevents silent integer overflow, truncated decimals, and wasted memory.</p>
+  <div class="table-wrap">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Data Type</th>
+          <th>Typical Size</th>
+          <th>What It Stores</th>
+          <th>Example Declaration</th>
+          <th>When to Choose It</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b><code>int</code></b></td>
+          <td>4 bytes (32-bit)</td>
+          <td>Whole numbers (~ −2.14×10<sup>9</sup> to +2.14×10<sup>9</sup>)</td>
+          <td><code>int count = 42;</code></td>
+          <td>Default for counters, indices, and numbers up to 10<sup>9</sup>.</td>
+        </tr>
+        <tr>
+          <td><b><code>long long</code></b></td>
+          <td>8 bytes (64-bit)</td>
+          <td>Large integers (~ −9.22×10<sup>18</sup> to +9.22×10<sup>18</sup>)</td>
+          <td><code>long long pop = 8000000000LL;</code></td>
+          <td>Sums, products, or populations exceeding 2 billion.</td>
+        </tr>
+        <tr>
+          <td><b><code>double</code></b></td>
+          <td>8 bytes (64-bit)</td>
+          <td>Floating-point decimals (~15 digits precision)</td>
+          <td><code>double avg = 87.65;</code></td>
+          <td>Averages, percentages, prices, and scientific values.</td>
+        </tr>
+        <tr>
+          <td><b><code>char</code></b></td>
+          <td>1 byte (8-bit)</td>
+          <td>Single ASCII character in single quotes</td>
+          <td><code>char grade = 'A';</code></td>
+          <td>Single letters, digits, or symbols (<code>'A'</code>, <code>'7'</code>, <code>'+'</code>).</td>
+        </tr>
+        <tr>
+          <td><b><code>bool</code></b></td>
+          <td>1 byte (8-bit)</td>
+          <td>Logical truth value: <code>true</code> (1) or <code>false</code> (0)</td>
+          <td><code>bool isPrime = true;</code></td>
+          <td>Condition flags, loop guards, and decision outcomes.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout warn">
+    <b>Classic Day-03 Trap — Integer Division:</b> In C++, <code>5 / 2</code> evaluates to <code>2</code> (both operands are <code>int</code>). Write <code>5.0 / 2</code> or <code>(double)a / b</code> to get <code>2.5</code>!
+  </div>
+  <div class="footer"><span>Match the data type to the range and precision of your problem</span><span>10 / 14</span></div>
+</section>
+
+<!-- SLIDE 11: BLANK-SCREEN PRACTICE LAB -->
+<section class="slide">
+  <div class="eyebrow">Day 03 · Blank-Screen Practice Lab</div>
+  <h1 class="h1">Drill: Write a Complete C++ Program from Scratch</h1>
+  <p class="lead">Task: Read three integer marks from the user, compute their exact decimal average using <code>double</code>, and print the result.</p>
+  <div class="two">
+    <div>
+      <h3>Checklist Before You Reveal</h3>
+      <ul>
+        <li>Include <code>&lt;iostream&gt;</code> and <code>using namespace std;</code></li>
+        <li>Declare <code>int m1, m2, m3;</code> and read them with <code>cin &gt;&gt;</code></li>
+        <li>Avoid integer truncation by dividing by <code>3.0</code></li>
+        <li>Output the average with <code>cout &lt;&lt;</code></li>
+        <li>End <code>main()</code> with <code>return 0;</code></li>
+      </ul>
+      <div class="callout"><b>Mental Check:</b> Trace how <code>g++</code> builds your code: <b>Source (<code>.cpp</code>)</b> → <b>Object (<code>.o</code>)</b> → <b>Executable (<code>.exe</code>)</b>.</div>
+    </div>
+    <div>
+      <textarea id="cpp-pad" class="editable" placeholder="#include <iostream>&#10;// Type the complete program from memory..."></textarea>
+      <div class="smallbtns">
+        <button class="button primary" onclick="toggleCppHint()">Reveal Reference Solution</button>
+        <button class="button" onclick="document.getElementById('cpp-pad').value=''">Clear Pad</button>
+      </div>
+      <div id="cpp-hint" class="hide">
+        <div class="code"><span class="pp">#include &lt;iostream&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="kw">int</span> main() {
+    <span class="kw">int</span> m1, m2, m3;
+    cin &gt;&gt; m1 &gt;&gt; m2 &gt;&gt; m3;
+
+    <span class="kw">double</span> avg = (m1 + m2 + m3) / 3.0;
+    cout &lt;&lt; <span class="str">"Average = "</span> &lt;&lt; avg &lt;&lt; <span class="str">"\n"</span>;
+
+    <span class="kw">return</span> 0;
+}</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Type every character yourself—build muscle memory</span><span>11 / 14</span></div>
+</section>
+
+<!-- SLIDE 12: QUICK CHECKPOINT QUIZ -->
+<section class="slide">
+  <div class="eyebrow">Day 02 &amp; Day 03 · Concept Checkpoint</div>
+  <h1 class="h1">Test Your Understanding (8 Questions)</h1>
+  <p class="lead">Verify your grasp of flowchart symbols, loops, <code>.cpp / .o / .exe</code> build files, and C++ data types before moving to Day 04.</p>
+  <div id="quiz-bank" class="grid" style="grid-template-columns:1fr"></div>
+  <div class="footer"><span>Complete all 8 checkpoint questions</span><span>12 / 14</span></div>
+</section>
+
+<!-- SLIDE 13: SUMMARY & CHEAT SHEET -->
+<section class="slide">
+  <div class="eyebrow">Day 02 &amp; Day 03 · Quick Reference</div>
+  <h1 class="h1">Master Cheat Sheet for Revision</h1>
+  <div class="grid">
+    <div class="card accent">
+      <h3>Flowchart Rules (Day 02)</h3>
+      <p><b>Oval:</b> Start / End<br>
+      <b>Parallelogram:</b> Input &amp; Output (both <code>cin</code> &amp; <code>cout</code>)<br>
+      <b>Rectangle:</b> Arithmetic &amp; Variable Assignment<br>
+      <b>Diamond:</b> Condition (<code>Yes</code> / <code>No</code>)<br>
+      <b>Loop:</b> Process updates counter → arrow loops back above Diamond.</p>
+    </div>
+    <div class="card">
+      <h3>g++ Build Files (Day 03)</h3>
+      <p><b>Source File (<code>.cpp</code>):</b> Human-written C++ code.<br>
+      <b>Object File (<code>.o</code>):</b> Compiler output—binary machine code for your file, with external library calls like <code>std::cout</code> still unlinked.<br>
+      <b>Executable File (<code>.exe</code>):</b> Linker output—combines <code>.o</code> with C++ Standard Library &amp; OS startup code into a runnable program.</p>
+    </div>
+    <div class="card">
+      <h3>Essential Data Types</h3>
+      <p><code>int</code> (4B), <code>long long</code> (8B), <code>double</code> (8B), <code>char</code> (1B), <code>bool</code> (1B). Divide by <code>3.0</code> (not <code>3</code>) for decimal averages.</p>
+    </div>
+    <div class="card accent">
+      <h3>Next Up: Day 04 (Session 04)</h3>
+      <p>Operators, Precedence, Explicit Type Casting, Integer Overflow Prevention &amp; Safe <code>cin</code> Input Guards.</p>
+    </div>
+  </div>
+  <div style="margin-top:18px;text-align:center">
+    <button class="button primary" onclick="downloadPDF()">⬇ Save Complete Notes as PDF</button>
+  </div>
+  <div class="footer"><span>Code to Creation · Week 01 Foundations</span><span>13 / 14</span></div>
+</section>
+
+<!-- SLIDE 14: SELF-CHECK COMPLETION -->
+<section class="slide">
+  <div class="eyebrow">Readiness Gate · Day 02 &amp; Day 03</div>
+  <h1 class="h1">Are You Ready for the Portal IDE?</h1>
+  <p class="lead">Tick every milestone you can perform without looking at notes:</p>
+  <div class="card" style="margin-top:14px">
+    <label style="display:flex;gap:10px;margin:10px 0;cursor:pointer"><input type="checkbox" style="margin-top:5px;flex-shrink:0;accent-color:var(--accent)"> <span>I can draw flowcharts for Sum of 3 Numbers, Largest of 3 Numbers, and a 1-to-N Loop using Parallelograms for outputs.</span></label>
+    <label style="display:flex;gap:10px;margin:10px 0;cursor:pointer"><input type="checkbox" style="margin-top:5px;flex-shrink:0;accent-color:var(--accent)"> <span>I can explain why a loop needs an update step before its backward arrow returns to the Decision Diamond.</span></label>
+    <label style="display:flex;gap:10px;margin:10px 0;cursor:pointer"><input type="checkbox" style="margin-top:5px;flex-shrink:0;accent-color:var(--accent)"> <span>I can explain what a Source file (<code>.cpp</code>), Object file (<code>.o</code>), and Executable file (<code>.exe</code>) contain and how <code>g++</code> creates them.</span></label>
+    <label style="display:flex;gap:10px;margin:10px 0;cursor:pointer"><input type="checkbox" style="margin-top:5px;flex-shrink:0;accent-color:var(--accent)"> <span>I can differentiate a Compiler syntax error (<code>.o</code> stage) from a Linker <code>undefined reference</code> error (<code>.exe</code> stage).</span></label>
+    <label style="display:flex;gap:10px;margin:10px 0;cursor:pointer"><input type="checkbox" style="margin-top:5px;flex-shrink:0;accent-color:var(--accent)"> <span>I can write <code>#include &lt;iostream&gt;</code>, <code>int main()</code>, <code>cin</code>, <code>cout</code>, and <code>return 0;</code> on a blank screen without copy-paste.</span></label>
+  </div>
+  <div class="callout ok" style="margin-top:16px">
+    <b>All 5 checked?</b> You have cleared the pre-compile conceptual gate and are ready to code in the C2C Portal IDE!
+  </div>
+  <div class="footer"><span>End of Day 02 &amp; Day 03 Deck</span><span>14 / 14</span></div>
+</section>
+
+</main>
+
+<!-- MOBILE STICKY BOTTOM NAV -->
+<nav class="mobile-bar" aria-label="Mobile slide navigation">
+  <button id="mPrev">← Prev</button>
+  <span id="mCount">01 / 14</span>
+  <button id="mNext" class="primary">Next →</button>
+</nav>
+
+<script>
+let index = 0;
+const slides = [...document.querySelectorAll('.slide')];
+const slideSelect = document.getElementById('slideSelect');
+
+slides.forEach((s, i) => {
+  const title = s.querySelector('.h1')?.textContent.replace(/\s+/g, ' ').trim() || `Slide ${i+1}`;
+  const opt = document.createElement('option');
+  opt.value = i;
+  opt.textContent = `${String(i+1).padStart(2,'0')}. ${title.slice(0, 34)}${title.length > 34 ? '…' : ''}`;
+  slideSelect.appendChild(opt);
+});
+slideSelect.onchange = () => show(Number(slideSelect.value));
+
+function show(n) {
+  index = (n + slides.length) % slides.length;
+  slides.forEach((s, i) => s.classList.toggle('active', i === index));
+  document.getElementById('bar').style.width = ((index + 1) / slides.length * 100) + '%';
+  slideSelect.value = index;
+  const label = String(index + 1).padStart(2, '0') + ' / ' + String(slides.length).padStart(2, '0');
+  const counter = slides[index].querySelector('.footer span:last-child');
+  if (counter) counter.textContent = label;
+  const mCount = document.getElementById('mCount');
+  if (mCount) mCount.textContent = label;
+  if (window.innerWidth <= 720) window.scrollTo({ top: 0, behavior: 'smooth' });
+  else slides[index].scrollTop = 0;
+}
+document.getElementById('next').onclick = () => show(index + 1);
+document.getElementById('prev').onclick = () => show(index - 1);
+document.getElementById('mNext').onclick = () => show(index + 1);
+document.getElementById('mPrev').onclick = () => show(index - 1);
+
+document.addEventListener('keydown', e => {
+  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+  if (e.key === 'ArrowRight') show(index + 1);
+  if (e.key === 'ArrowLeft') show(index - 1);
+});
+
+/* Touch swipe support for mobile */
+let touchStartX = 0, touchStartY = 0;
+document.addEventListener('touchstart', e => {
+  touchStartX = e.changedTouches[0].screenX;
+  touchStartY = e.changedTouches[0].screenY;
+}, { passive: true });
+document.addEventListener('touchend', e => {
+  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+  const dx = e.changedTouches[0].screenX - touchStartX;
+  const dy = e.changedTouches[0].screenY - touchStartY;
+  if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+    if (dx < 0) show(index + 1);
+    else show(index - 1);
+  }
+}, { passive: true });
+
+/* PDF Export via clean Print-to-PDF layout */
+function downloadPDF() {
+  window.print();
+}
+
+/* Q1 Tracer */
+function runQ1() {
+  const a = Number(document.getElementById('q1-a').value) || 0;
+  const b = Number(document.getElementById('q1-b').value) || 0;
+  const c = Number(document.getElementById('q1-c').value) || 0;
+  const sum = a + b + c;
+  document.getElementById('q1-out').innerHTML =
+    `1. [Oval] START<br>` +
+    `2. [Parallelogram] Input A = <b>${a}</b>, B = <b>${b}</b>, C = <b>${c}</b><br>` +
+    `3. [Rectangle] Sum = ${a} + ${b} + ${c} = <b>${sum}</b><br>` +
+    `4. [Parallelogram] Print Sum → <b>${sum}</b><br>` +
+    `5. [Oval] END`;
+}
+
+/* Q2 Tracer */
+function runQ2() {
+  const a = Number(document.getElementById('q2-a').value) || 0;
+  const b = Number(document.getElementById('q2-b').value) || 0;
+  const c = Number(document.getElementById('q2-c').value) || 0;
+  ['q2-d1','q2-d2','q2-d3','q2-outA','q2-outB','q2-outC1','q2-outC2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('stroke-width', '2');
+  });
+  document.getElementById('q2-d1').setAttribute('stroke-width', '4');
+  let log = `Input: A = ${a}, B = ${b}, C = ${c}<br>`;
+  if (a > b) {
+    log += `• Diamond 1: Is A > B (${a} > ${b})? → <b>YES</b><br>`;
+    document.getElementById('q2-d2').setAttribute('stroke-width', '4');
+    if (a > c) {
+      log += `• Diamond 2: Is A > C (${a} > ${c})? → <b>YES</b><br>`;
+      log += `• Output [Parallelogram]: <b>Print A (${a}) is largest</b>`;
+      document.getElementById('q2-outA').setAttribute('stroke-width', '4');
+    } else {
+      log += `• Diamond 2: Is A > C (${a} > ${c})? → <b>NO</b><br>`;
+      log += `• Output [Parallelogram]: <b>Print C (${c}) is largest</b>`;
+      document.getElementById('q2-outC1').setAttribute('stroke-width', '4');
+    }
+  } else {
+    log += `• Diamond 1: Is A > B (${a} > ${b})? → <b>NO</b><br>`;
+    document.getElementById('q2-d3').setAttribute('stroke-width', '4');
+    if (b > c) {
+      log += `• Diamond 3: Is B > C (${b} > ${c})? → <b>YES</b><br>`;
+      log += `• Output [Parallelogram]: <b>Print B (${b}) is largest</b>`;
+      document.getElementById('q2-outB').setAttribute('stroke-width', '4');
+    } else {
+      log += `• Diamond 3: Is B > C (${b} > ${c})? → <b>NO</b><br>`;
+      log += `• Output [Parallelogram]: <b>Print C (${c}) is largest</b>`;
+      document.getElementById('q2-outC2').setAttribute('stroke-width', '4');
+    }
+  }
+  document.getElementById('q2-out').innerHTML = log;
+}
+
+/* Q3 Loop Tracer */
+function runQ3() {
+  let n = Math.max(0, Math.min(12, Number(document.getElementById('q3-n').value) || 0));
+  document.getElementById('q3-n').value = n;
+  let sum = 0, i = 1, pass = 1;
+  let lines = [`Init: sum = 0, i = 1 (Target N = ${n})`];
+  while (i <= n) {
+    sum += i;
+    lines.push(`Pass ${pass}: Is ${i} <= ${n}? YES → sum = ${sum}, i becomes ${i+1} ↺ (loop-back arrow)`);
+    i++;
+    pass++;
+  }
+  lines.push(`Exit: Is ${i} <= ${n}? NO → Exit loop → [Parallelogram] Print sum = ${sum}`);
+  document.getElementById('q3-out').innerHTML = lines.join('<br>');
+}
+
+/* Slide 06 Pipeline Stages (Source -> Object -> Executable) */
+const stages = [
+  {
+    title: 'Stage 1: Source File (main.cpp)',
+    body: 'This is the human-readable C++ text file you write in your editor. It contains header includes (#include <iostream>), comments (//), variables, and your main() logic. The CPU cannot execute plain text directly.'
+  },
+  {
+    title: 'Stage 2: Compiler → Object File (main.o)',
+    body: 'Command: g++ -c main.cpp -o main.o. The compiler expands headers like <iostream>, checks syntax and data types, and translates your C++ logic into raw binary CPU machine code (0s and 1s). However, external functions like std::cout do not have their final memory addresses yet—those are left as unresolved symbol placeholders.'
+  },
+  {
+    title: 'Stage 3: Linker → Executable File (main.exe)',
+    body: 'Command: g++ main.o -o main.exe. The linker resolves all placeholder addresses by connecting your main.o with precompiled C++ Standard Library binaries (libstdc++) and OS startup routines, producing a standalone runnable main.exe.'
+  }
+];
+function selectStage(idx) {
+  for (let i = 0; i < 3; i++) {
+    document.getElementById('st-' + i).classList.toggle('selected', i === idx);
+  }
+  const s = stages[idx];
+  document.getElementById('stage-detail').innerHTML = `<h3>${s.title}</h3><p>${s.body}</p>`;
+}
+selectStage(0);
+
+/* Slide 08 Artifact Viewer */
+const artifacts = {
+  cpp: {
+    code: `// main.cpp — Source File written by you (7 lines)\n#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello C2C!" << "\\n";\n    return 0;\n}`,
+    note: '<b>Source File (main.cpp):</b> Clean, human-written C++ source code containing <code>#include &lt;iostream&gt;</code> and <code>int main()</code>.'
+  },
+  o: {
+    code: `// main.o — Object File generated by Compiler (g++ -c main.cpp -o main.o)\nObject Binary Header:\n  .text (machine bytes): 55 48 89 e5 48 8d 05 00 00 00 00 e8 [UNRESOLVED: std::cout]\n  .rodata (string literal): "Hello C2C!\\n"\n  Symbol Table:\n    [U] _ZSt4cout   (Undefined — waiting for Linker!)\n    [T] main        (Defined at offset 0x0000)`,
+    note: '<b>Object File (main.o):</b> Pure binary machine instructions for <code>main()</code>, but <code>std::cout</code> is marked <code>[U] Undefined</code> because library code has not been linked yet.'
+  },
+  exe: {
+    code: `// main.exe — Executable File generated by Linker (g++ main.o -o main.exe)\nExecutable Binary:\n  [OS Entry Stub]  --> calls main() at 0x00401550\n  [0x00401550]     --> main() machine code\n  [0x00402810]     --> Linked std::ostream::operator<< from libstdc++\n  [0x00404000]     --> Read-only string "Hello C2C!\\n"\nStatus: Ready for OS loader to execute in RAM!`,
+    note: '<b>Executable File (main.exe):</b> Complete, self-contained binary. Every symbol is resolved to a real memory address so the operating system can load and run it.'
+  }
+};
+function showArtifact(key) {
+  ['cpp','o','exe'].forEach(k => {
+    document.getElementById('tab-' + k).classList.toggle('active-tab', k === key);
+  });
+  document.getElementById('artifact-view').textContent = artifacts[key].code;
+  document.getElementById('artifact-note').innerHTML = artifacts[key].note;
+}
+showArtifact('cpp');
+
+/* Slide 11 Toggle Hint */
+function toggleCppHint() {
+  document.getElementById('cpp-hint').classList.toggle('hide');
+}
+
+/* Slide 12 Quiz Bank */
+const quizData = [
+  { q: '1. Which flowchart shape must be used for displaying output (such as "Print Sum")?', o: ['Rectangle', 'Parallelogram', 'Oval', 'Circle'], a: 1, e: 'Both Input and Output operations use a Parallelogram in standard flowcharts.' },
+  { q: '2. In a loop flowchart, where does the backward arrow point after updating the loop counter?', o: ['Back to START', 'Just above the loop Decision Diamond', 'Directly to END', 'To the Input box'], a: 1, e: 'The backward arrow returns just above the condition diamond so the updated counter is re-tested.' },
+  { q: '3. What is the correct build flow when g++ compiles a C++ program?', o: ['main.exe → main.o → main.cpp', 'main.cpp (Source) → main.o (Object) → main.exe (Executable)', 'main.o → main.cpp → main.exe', 'main.cpp → main.exe (no object stage)'], a: 1, e: 'g++ compiles your Source file (.cpp) into a binary Object file (.o), and the Linker combines it with libraries into an Executable (.exe).' },
+  { q: '4. Which command compiles main.cpp into an Object File (main.o) without linking?', o: ['g++ -c main.cpp -o main.o', 'g++ main.o -o main.exe', 'run main.cpp', 'link main.cpp'], a: 0, e: 'The -c flag tells g++ to compile the source file into a relocatable Object File (.o).' },
+  { q: '5. Why can a .o Object File NOT be executed directly by the operating system?', o: ['It still contains C++ comments', 'External library calls like std::cout are unresolved until Linking', 'It is written in Python', 'It has no main function'], a: 1, e: 'The Linker resolves external library symbols (like std::cout) and adds OS startup headers to produce .exe.' },
+  { q: '6. If you declare a function void greet(); and call it, but forget to write its definition, which tool reports an error?', o: ['Text Editor', 'Compiler (.o stage)', 'Linker (.exe stage)', 'Keyboard Driver'], a: 2, e: 'The Compiler trusts the declaration while building .o, so the Linker fails with "undefined reference to greet()" when building .exe.' },
+  { q: '7. What does cout << (7 / 2); print in C++?', o: ['3.5', '3', '4', 'Compilation error'], a: 1, e: 'Because both 7 and 2 are int, C++ performs integer division and truncates .5, printing 3.' },
+  { q: '8. Which C++ data type should you choose to store a number around 50,000,000,000 (50 billion)?', o: ['int', 'char', 'bool', 'long long'], a: 3, e: 'Standard 32-bit int maxes out around 2.14 billion; long long (64-bit) safely holds up to ~9 × 10^18.' }
+];
+const qb = document.getElementById('quiz-bank');
+quizData.forEach((item, i) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `<h3>${item.q}</h3>` +
+    item.o.map((opt, j) => `<label class="quiz-option"><input type="radio" name="qb${i}" value="${j}"> <span>${opt}</span></label>`).join('') +
+    `<button class="button primary" onclick="checkQb(${i})">Check Answer</button><div class="feedback" id="qbfb${i}"></div>`;
+  qb.appendChild(card);
+});
+function checkQb(i) {
+  const sel = document.querySelector(`input[name="qb${i}"]:checked`);
+  const fb = document.getElementById('qbfb' + i);
+  if (!sel) { fb.textContent = 'Select an option first.'; fb.style.color = 'var(--gold)'; return; }
+  const ok = Number(sel.value) === quizData[i].a;
+  fb.innerHTML = (ok ? '✓ Correct! ' : '✗ Not quite. ') + `<b>Answer:</b> ${quizData[i].o[quizData[i].a]} — ${quizData[i].e}`;
+  fb.style.color = ok ? 'var(--green)' : 'var(--gold)';
+}
+
+runQ1();
+runQ2();
+runQ3();
+show(0);
+</script>
+</body>
+</html>
