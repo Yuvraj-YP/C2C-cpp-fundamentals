@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>C2C · Day 04 — Data Types, Operators &amp; Type Casting</title>
+<style>
+:root{--ink:#17283d;--muted:#62748a;--accent:#587fa8;--accent2:#8ca9c6;--pale:#eaf1f7;--pale2:#f4f7fa;--line:#dbe4ec;--white:#fff;--green:#547d70;--gold:#b08b55;--red:#b85c5c;--shadow:0 20px 55px #243c5514}
+*{box-sizing:border-box}
+body{margin:0;background:#f6f8fb;color:var(--ink);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;overflow:hidden}
+.top{height:64px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid var(--line)}
+.brand{font-weight:800;letter-spacing:.09em;font-size:13px}.brand span{color:var(--accent)}.topright{color:var(--muted);font-size:13px}
+.progress{height:4px;background:#e8edf2}.progress i{display:block;height:4px;width:0;background:var(--accent);transition:width .35s}
+.deck{height:calc(100vh - 68px);display:flex;align-items:center;justify-content:center;padding:28px 90px;position:relative}
+.slide{display:none;width:min(100%,1000px);max-height:100%;overflow:auto;background:white;border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);padding:clamp(24px,4vw,48px);animation:appear .3s;-webkit-overflow-scrolling:touch}
+.slide.active{display:block}@keyframes appear{from{opacity:.5;transform:translateY(8px)}to{opacity:1;transform:none}}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--accent);text-transform:uppercase}
+.h1{font-size:clamp(26px,4vw,44px);line-height:1.14;margin:8px 0 15px;letter-spacing:-.035em}
+.lead{font-size:clamp(16px,2.2vw,19px);color:var(--muted);max-width:760px}
+.pill{display:inline-block;padding:5px 12px;border-radius:30px;background:var(--pale);color:var(--accent);font-weight:700;font-size:12px;margin:4px 4px 4px 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:22px}
+.card{background:var(--pale2);border:1px solid var(--line);border-radius:16px;padding:18px;min-width:0}
+.card h3{margin:0 0 8px;font-size:17px}.card p{margin:0;color:var(--muted)}.card.accent{background:#edf4fa}
+.callout{border-left:4px solid var(--accent);padding:14px 18px;background:#f1f6fa;border-radius:8px;margin:18px 0}
+.code{background:#17283d;color:#eaf2f8;padding:16px;border-radius:14px;overflow-x:auto;font:13.5px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre}
+.code .comment{color:#a9c1d8}.code .kw{color:#93c5fd}.code .str{color:#86efac}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.two>div{min-width:0}
+.button{border:1px solid var(--line);background:white;color:var(--ink);padding:10px 15px;border-radius:12px;cursor:pointer;font-weight:700;font-size:14px}
+.button:hover{background:var(--pale)}.button.primary{background:var(--accent);color:white;border-color:var(--accent)}
+.nav{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:#fff;box-shadow:var(--shadow);font-size:25px;cursor:pointer;color:var(--accent);display:grid;place-items:center;z-index:10;touch-action:manipulation}
+.nav:hover{background:var(--pale)}#prev{left:22px}#next{right:22px}
+.footer{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin-top:26px}
+.mini{font-size:13px;color:var(--muted)}
+.quiz-option{display:block;padding:12px;margin:10px 0;border:1px solid var(--line);border-radius:12px;cursor:pointer;transition:background .15s}
+.quiz-option:hover{background:var(--pale)}
+.feedback{font-weight:700;margin-top:12px;line-height:1.5}
+.diagram{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:9px;margin:24px 0}
+.node{border:1px solid var(--accent2);background:#edf4fa;border-radius:12px;padding:10px 14px;font-weight:700;text-align:center;font-size:14px}
+.arrow{color:var(--accent);font-size:20px;font-weight:700}
+.editable{border:1px solid var(--line);border-radius:12px;padding:14px;background:white;width:100%;font:14px/1.6 ui-monospace,monospace;min-height:170px}
+.smallbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.hide{display:none}
+.tbl-wrap{width:100%;overflow-x:auto;margin-top:16px;-webkit-overflow-scrolling:touch}
+table.tbl{width:100%;border-collapse:collapse;font-size:14px;min-width:540px}
+table.tbl th,table.tbl td{border:1px solid var(--line);padding:10px 12px;text-align:left}
+table.tbl th{background:var(--pale);color:var(--ink);font-weight:700}
+table.tbl tr:nth-child(even){background:var(--pale2)}
+code.inline{background:var(--pale);color:var(--ink);padding:2px 6px;border-radius:6px;font:13px ui-monospace,Consolas,monospace}
+sup{font-size:75%;line-height:0}
+@media(max-width:768px){
+  .top{height:56px;padding:0 14px}
+  .brand{font-size:12px}.topright{font-size:11px}
+  .deck{height:calc(100dvh - 60px);padding:12px 12px 66px;align-items:flex-start}
+  .slide{padding:20px 18px;border-radius:18px;max-height:100%}
+  .grid,.two{grid-template-columns:1fr;gap:12px}
+  .nav{top:auto;bottom:12px;transform:none;width:44px;height:44px;font-size:22px}
+  #prev{left:18px}#next{right:18px}
+  .diagram{gap:6px;margin:16px 0}
+  .node{padding:8px 10px;font-size:12.5px}
+  .code{font-size:12.5px;padding:14px}
+}
+</style></head>
+<body>
+<header class="top"><div class="brand">CODE TO <span>CREATION</span> · LEARNING DECK</div><div class="topright">DAY 04 · W01 FOUNDATIONS &amp; C++</div></header><div class="progress"><i id="bar"></i></div>
+<main class="deck">
+<button class="nav" id="prev" aria-label="Previous slide">‹</button><button class="nav" id="next" aria-label="Next slide">›</button>
+
+<!-- SLIDE 01 -->
+<section class="slide active">
+  <div class="eyebrow">Day 04 · Session 04</div>
+  <h1 class="h1">Data Types Revision,<br>Operators &amp; Type Casting</h1>
+  <p class="lead">Before building decision trees and loops, lock in how C++ stores values in memory, evaluates complex expressions, and converts data types safely.</p>
+  <div style="margin:18px 0">
+    <span class="pill">Data Types Recap</span>
+    <span class="pill">Arithmetic &amp; Relational</span>
+    <span class="pill">Logical &amp; Bitwise</span>
+    <span class="pill">Precedence &amp; Associativity</span>
+    <span class="pill">Type Casting</span>
+  </div>
+  <div class="grid">
+    <div class="card accent">
+      <h3>Today's objective</h3>
+      <p>Predict exact expression outcomes without guessing and prevent integer overflow or decimal truncation bugs in C++.</p>
+    </div>
+    <div class="card">
+      <h3>Today's challenge</h3>
+      <p>Audit and repair a buggy C++ billing snippet suffering from intermediate integer overflow and integer division truncation.</p>
+    </div>
+  </div>
+  <div class="footer"><span>Swipe, tap arrows, or press ← → keys</span><span>01 / 11</span></div>
+</section>
+
+<!-- SLIDE 02 -->
+<section class="slide">
+  <div class="eyebrow">Initial Revision · Memory &amp; Types</div>
+  <h1 class="h1">Core C++ Data Types Recap</h1>
+  <p class="lead">Every variable in C++ reserves a fixed number of bytes in RAM. Choosing the right type prevents silent overflow and wasted precision.</p>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead>
+        <tr><th>Type</th><th>Typical Size</th><th>Approx. Range / Precision</th><th>When to Use</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code class="inline">int</code></td><td>4 bytes</td><td>&minus;2.14 &times; 10<sup>9</sup> to +2.14 &times; 10<sup>9</sup></td><td>Standard counters, indices, small whole numbers</td></tr>
+        <tr><td><code class="inline">long long</code></td><td>8 bytes</td><td>&minus;9.22 &times; 10<sup>18</sup> to +9.22 &times; 10<sup>18</sup></td><td>Large sums, products (10<sup>5</sup> &times; 10<sup>5</sup>), timestamps</td></tr>
+        <tr><td><code class="inline">double</code></td><td>8 bytes</td><td>~15–17 significant decimal digits</td><td>Percentages, averages, geometry, physics formulas</td></tr>
+        <tr><td><code class="inline">char</code></td><td>1 byte</td><td>&minus;128 to 127 (ASCII codes)</td><td>Single characters like <code class="inline">'A'</code>, <code class="inline">'y'</code>, <code class="inline">'+'</code></td></tr>
+        <tr><td><code class="inline">bool</code></td><td>1 byte</td><td><code class="inline">true</code> (1) or <code class="inline">false</code> (0)</td><td>Flags, loop conditions, comparison states</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout"><b>Golden rule:</b> If two <code class="inline">int</code> variables around 10<sup>5</sup> are multiplied (<code class="inline">a * b</code>), the result hits 10<sup>10</sup> and overflows <code class="inline">int</code> <i>before</i> assignment unless at least one operand is <code class="inline">long long</code>.</div>
+  <div class="footer"><span>Revision checkpoint from Session 03</span><span>02 / 11</span></div>
+</section>
+
+<!-- SLIDE 03 -->
+<section class="slide">
+  <div class="eyebrow">Initial Revision · Quick Code Check</div>
+  <h1 class="h1">Data Types &amp; Initialization Discipline</h1>
+  <p class="lead">Uninitialized local variables hold garbage memory values. Always initialize variables at declaration and match literal suffixes to your target type.</p>
+  <div class="two">
+    <div>
+      <h3>Clean Declaration Habits</h3>
+      <ul>
+        <li><b>Initialize immediately:</b> Use <code class="inline">int count = 0;</code> instead of leaving variables uninitialized.</li>
+        <li><b>Use <code class="inline">LL</code> suffix:</b> Write <code class="inline">100000LL * 100000</code> so the compiler promotes to 64-bit arithmetic immediately.</li>
+        <li><b>Prefer <code class="inline">double</code> over <code class="inline">float</code>:</b> <code class="inline">float</code> only gives ~6–7 digits of precision and rounds early.</li>
+        <li><b>ASCII awareness:</b> <code class="inline">'0'</code> is 48, <code class="inline">'A'</code> is 65, <code class="inline">'a'</code> is 97.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Memory &amp; Literal Demo</h3>
+      <div class="code"><span class="kw">#include</span> &lt;iostream&gt;
+<span class="kw">using namespace</span> std;
+
+<span class="kw">int</span> main() {
+    <span class="kw">int</span> items = 50000;
+    <span class="kw">long long</span> total = 1LL * items * items;
+    <span class="kw">double</span> avg = total / 3.0;
+    <span class="kw">char</span> grade = <span class="str">'A'</span>;
+    <span class="kw">bool</span> isValid = (avg &gt; 0);
+
+    cout &lt;&lt; total &lt;&lt; <span class="str">" | "</span> &lt;&lt; avg &lt;&lt; <span class="str">"\n"</span>;
+    <span class="kw">return</span> 0;
+}</div>
+    </div>
+  </div>
+  <div class="footer"><span>Always initialize variables before reading them.</span><span>03 / 11</span></div>
+</section>
+
+<!-- SLIDE 04 -->
+<section class="slide">
+  <div class="eyebrow">Concept 01 · Operators</div>
+  <h1 class="h1">Arithmetic, Relational &amp; Logical Operators</h1>
+  <p class="lead">Operators transform values and combine conditions. Watch out for integer truncation and short-circuit evaluation.</p>
+  <div class="grid">
+    <div class="card">
+      <h3>Arithmetic (<code class="inline">+ - * / %</code>)</h3>
+      <p><code class="inline">7 / 2</code> evaluates to <code class="inline">3</code> (truncates decimal). Modulo <code class="inline">7 % 2</code> returns remainder <code class="inline">1</code> and works only on integer types.</p>
+    </div>
+    <div class="card">
+      <h3>Increment / Decrement (<code class="inline">++ --</code>)</h3>
+      <p><b>Prefix (<code class="inline">++x</code>):</b> increments first, then uses the new value.<br><b>Postfix (<code class="inline">x++</code>):</b> uses the current value first, then increments.</p>
+    </div>
+    <div class="card">
+      <h3>Relational (<code class="inline">== != &lt; &gt; &lt;= &gt;=</code>)</h3>
+      <p>Always return a <code class="inline">bool</code> (<code class="inline">true</code> or <code class="inline">false</code>). Never confuse equality <code class="inline">==</code> with assignment <code class="inline">=</code>.</p>
+    </div>
+    <div class="card accent">
+      <h3>Logical (<code class="inline">&amp;&amp; || !</code>) &amp; Short-Circuit</h3>
+      <p>In <code class="inline">A &amp;&amp; B</code>, if <code class="inline">A</code> is false, <code class="inline">B</code> is never evaluated. In <code class="inline">A || B</code>, if <code class="inline">A</code> is true, <code class="inline">B</code> is skipped.</p>
+    </div>
+  </div>
+  <div class="callout"><b>Division Check:</b> Checking <code class="inline">b != 0 &amp;&amp; a / b &gt; 2</code> evaluates <code class="inline">b != 0</code> first and skips <code class="inline">a / b</code> whenever <code class="inline">b</code> is zero.</div>
+  <div class="footer"><span>Short-circuiting skips unnecessary right-hand evaluations.</span><span>04 / 11</span></div>
+</section>
+
+<!-- SLIDE 05 -->
+<section class="slide">
+  <div class="eyebrow">Concept 02 · Bit-Level Operations</div>
+  <h1 class="h1">Bitwise Operators Essentials</h1>
+  <p class="lead">Bitwise operators work directly on the binary bits (<code class="inline">0</code>s and <code class="inline">1</code>s) of integer types—fast, low-level, and essential for systems &amp; DSA.</p>
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead>
+        <tr><th>Operator</th><th>Name</th><th>Example (<code class="inline">a = 5 (0101)</code>, <code class="inline">b = 3 (0011)</code>)</th><th>Result</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code class="inline">&amp;</code></td><td>Bitwise AND</td><td><code class="inline">0101 &amp; 0011</code> (1 only if both bits are 1)</td><td><code class="inline">0001</code> (1)</td></tr>
+        <tr><td><code class="inline">|</code></td><td>Bitwise OR</td><td><code class="inline">0101 | 0011</code> (1 if either bit is 1)</td><td><code class="inline">0111</code> (7)</td></tr>
+        <tr><td><code class="inline">^</code></td><td>Bitwise XOR</td><td><code class="inline">0101 ^ 0011</code> (1 if bits differ)</td><td><code class="inline">0110</code> (6)</td></tr>
+        <tr><td><code class="inline">~</code></td><td>Bitwise NOT</td><td><code class="inline">~0101</code> (flips every bit)</td><td><code class="inline">&minus;6</code> (in signed 32-bit)</td></tr>
+        <tr><td><code class="inline">&lt;&lt;</code></td><td>Left Shift</td><td><code class="inline">5 &lt;&lt; 1</code> (shifts left, multiplies by 2<sup>1</sup>)</td><td><code class="inline">1010</code> (10)</td></tr>
+        <tr><td><code class="inline">&gt;&gt;</code></td><td>Right Shift</td><td><code class="inline">5 &gt;&gt; 1</code> (shifts right, integer divides by 2<sup>1</sup>)</td><td><code class="inline">0010</code> (2)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout"><b>Practical check:</b> <code class="inline">(n &amp; 1) == 0</code> checks if <code class="inline">n</code> is even by inspecting its least significant bit. Never mix up bitwise <code class="inline">&amp;</code> with logical <code class="inline">&amp;&amp;</code>!</div>
+  <div class="footer"><span>Bitwise = bit-by-bit; Logical = true/false conditions.</span><span>05 / 11</span></div>
+</section>
+
+<!-- SLIDE 06 -->
+<section class="slide">
+  <div class="eyebrow">Concept 03 · Evaluation Order</div>
+  <h1 class="h1">Operator Precedence &amp; Associativity</h1>
+  <p class="lead">C++ does not simply evaluate left-to-right. Higher-precedence operators bind tighter, while associativity breaks ties at the same level.</p>
+  <div class="diagram">
+    <div class="node">1. Parentheses<br><code class="inline">( )</code></div><div class="arrow">→</div>
+    <div class="node">2. Unary<br><code class="inline">! ~ ++ --</code></div><div class="arrow">→</div>
+    <div class="node">3. Mult / Div<br><code class="inline">* / %</code></div><div class="arrow">→</div>
+    <div class="node">4. Add / Sub<br><code class="inline">+ -</code></div><div class="arrow">→</div>
+    <div class="node">5. Relational<br><code class="inline">&lt; &lt;= &gt; &gt;=</code></div><div class="arrow">→</div>
+    <div class="node">6. Equality &amp; Logic<br><code class="inline">== != &amp;&amp; ||</code></div>
+  </div>
+  <div class="two">
+    <div class="card">
+      <h3>Trace Example</h3>
+      <div class="code"><span class="kw">int</span> res = 10 + 20 * 3 / 2 - 4;
+<span class="comment">// Step 1: 20 * 3 = 60</span>
+<span class="comment">// Step 2: 60 / 2 = 30</span>
+<span class="comment">// Step 3: 10 + 30 - 4 = 36</span></div>
+    </div>
+    <div class="card accent">
+      <h3>Readability Rule</h3>
+      <p>Even if you memorize the full precedence table, wrap mixed arithmetic, bitwise, and logical conditions in explicit parentheses <code class="inline">( )</code> so your intent is unmistakable to every reader.</p>
+    </div>
+  </div>
+  <div class="footer"><span>When in doubt, parenthesize explicitly.</span><span>06 / 11</span></div>
+</section>
+
+<!-- SLIDE 07 -->
+<section class="slide">
+  <div class="eyebrow">Concept 04 · Type Conversions</div>
+  <h1 class="h1">Implicit Promotion vs. Explicit Casting</h1>
+  <p class="lead">When mixed types meet in an expression, C++ promotes narrower types automatically—or lets you convert intentionally with <code class="inline">static_cast</code>.</p>
+  <div class="two">
+    <div>
+      <h3>Implicit Promotion Ladder</h3>
+      <p class="mini">Automatically widens left to right during mixed expressions:</p>
+      <div class="code"><span class="kw">bool</span> / <span class="kw">char</span> → <span class="kw">int</span> → <span class="kw">long long</span> → <span class="kw">double</span></div>
+      <div class="callout"><b>Trap:</b> <code class="inline">double ans = 5 / 2;</code> evaluates <code class="inline">5 / 2</code> as <code class="inline">int</code> (<code class="inline">2</code>) <i>first</i>, and only then converts <code class="inline">2</code> to <code class="inline">2.0</code>!</div>
+    </div>
+    <div>
+      <h3>Explicit <code class="inline">static_cast&lt;T&gt;</code></h3>
+      <p class="mini">Safe, readable, compile-time checked casting:</p>
+      <div class="code"><span class="kw">int</span> scored = 17, total = 20;
+
+<span class="comment">// Wrong: integer division gives 0.0</span>
+<span class="kw">double</span> bad = (scored / total) * 100;
+
+<span class="comment">// Right: cast numerator to double first</span>
+<span class="kw">double</span> pct = <span class="kw">static_cast</span>&lt;<span class="kw">double</span>&gt;(scored) / total * 100;
+<span class="comment">// pct = 85.0</span></div>
+    </div>
+  </div>
+  <div class="footer"><span>Prefer static_cast&lt;type&gt;(val) over C-style (type)val.</span><span>07 / 11</span></div>
+</section>
+
+<!-- SLIDE 08 -->
+<section class="slide">
+  <div class="eyebrow">Interactive Simulator</div><h1 class="h1">Expression &amp; Casting Sandbox</h1>
+  <p class="lead">Test how integer division, <code class="inline">static_cast&lt;double&gt;</code>, and overflow behave on live numbers.</p>
+  <div class="grid">
+    <div class="card"><label>Operand A (<code class="inline">int</code>) <input id="opA" type="number" value="17" style="padding:10px;border-radius:9px;border:1px solid var(--line);width:100%;margin-top:5px"></label></div>
+    <div class="card"><label>Operand B (<code class="inline">int</code>) <input id="opB" type="number" value="5" style="padding:10px;border-radius:9px;border:1px solid var(--line);width:100%;margin-top:5px"></label></div>
+    <div class="card">
+      <h3>Integer Division (<code class="inline">A / B</code>) &amp; Modulo (<code class="inline">A % B</code>)</h3>
+      <div id="intOut" style="font-size:24px;font-weight:800;color:var(--ink)">3  |  rem: 2</div>
+      <p id="intTrace" class="mini">17 / 5 truncates fractional part .4</p>
+    </div>
+    <div class="card accent">
+      <h3>Casted (<code class="inline">static_cast&lt;double&gt;(A) / B</code>)</h3>
+      <div id="dblOut" style="font-size:24px;font-weight:800;color:var(--accent)">3.4000</div>
+      <p id="ovfTrace" class="mini">Product A * B = 85 (fits in 32-bit int)</p>
+    </div>
+  </div>
+  <button class="button primary" onclick="runSim()" style="margin-top:14px">Evaluate Expressions</button>
+  <div class="callout">Try entering <b>A = 100000</b> and <b>B = 100000</b> to see how <code class="inline">int</code> multiplication overflows compared to <code class="inline">long long</code>!</div>
+  <div class="footer"><span>Experiment with edge values and zero divisors.</span><span>08 / 11</span></div>
+</section>
+
+<!-- SLIDE 09 -->
+<section class="slide">
+  <div class="eyebrow">Debug Lab · Buggy Code Fix</div>
+  <h1 class="h1">Your Turn: Fix the Overflow &amp; Casting Bugs</h1>
+  <p class="lead">Spot and fix both bugs in this C++ snippet: (1) integer multiplication overflow and (2) truncated percentage calculation.</p>
+  <div class="two">
+    <div>
+      <h3>Buggy Code</h3>
+      <div class="code"><span class="kw">int</span> units, rate;
+cin &gt;&gt; units &gt;&gt; rate;
+<span class="kw">long long</span> bill = units * rate;
+<span class="kw">double</span> taxShare = (18 / 100) * bill;
+cout &lt;&lt; bill + taxShare;</div>
+      <div class="mini" style="margin-top:10px">Hint: What happens if <code class="inline">units = 100000</code> and <code class="inline">rate = 50000</code>? What is <code class="inline">18 / 100</code> in C++?</div>
+    </div>
+    <div>
+      <textarea id="practice" class="editable" placeholder="Write your fixed C++ snippet here..."></textarea>
+      <div class="smallbtns">
+        <button class="button primary" onclick="showHint()">Reveal clean solution</button>
+        <button class="button" onclick="clearPractice()">Clear</button>
+      </div>
+      <div id="hint" class="hide" style="margin-top:10px">
+        <div class="code"><span class="kw">long long</span> units = 0, rate = 0;
+cin &gt;&gt; units &gt;&gt; rate;
+<span class="kw">long long</span> bill = units * rate;
+<span class="kw">double</span> taxShare = (<span class="kw">static_cast</span>&lt;<span class="kw">double</span>&gt;(18) / 100) * bill;
+cout &lt;&lt; bill + taxShare &lt;&lt; <span class="str">"\n"</span>;</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Fix overflow and integer division truncation before checking.</span><span>09 / 11</span></div>
+</section>
+
+<!-- SLIDE 10 -->
+<section class="slide">
+  <div class="eyebrow">Recap &amp; Checkpoint</div>
+  <h1 class="h1">Day 04 Key Takeaways</h1>
+  <div class="grid">
+    <div class="card"><h3>Right-Size Types</h3><p>Use <code class="inline">long long</code> before products exceed 2 &times; 10<sup>9</sup>, and <code class="inline">double</code> for fractional precision.</p></div>
+    <div class="card"><h3>Precedence &amp; Associativity</h3><p>Wrap mixed arithmetic, bitwise, and logical expressions in <code class="inline">( )</code> for clarity.</p></div>
+    <div class="card"><h3>Explicit Casting</h3><p>Cast one operand with <code class="inline">static_cast&lt;double&gt;</code> <i>before</i> dividing integers.</p></div>
+    <div class="card"><h3>Bitwise vs. Logical</h3><p>Use <code class="inline">&amp;</code>, <code class="inline">|</code>, <code class="inline">^</code> for binary bit manipulation and <code class="inline">&amp;&amp;</code>, <code class="inline">||</code> for boolean conditions.</p></div>
+  </div>
+  <h3 style="margin-top:25px">Quick checkpoint</h3>
+  <p>What is the value of <code class="inline">double x = 9 / 2 + 1.5;</code> in C++?</p>
+  <label class="quiz-option"><input type="radio" name="quiz" value="a"> 6.0</label>
+  <label class="quiz-option"><input type="radio" name="quiz" value="b"> 5.5</label>
+  <label class="quiz-option"><input type="radio" name="quiz" value="c"> 5.0</label>
+  <button class="button primary" onclick="checkQuiz()">Check answer</button>
+  <div id="quizfeedback" class="feedback"></div>
+  <div class="footer"><span>Next: Session 05 — Conditional Branching: if-else &amp; switch</span><span>10 / 11</span></div>
+</section>
+
+<!-- SLIDE 11 -->
+<section class="slide">
+  <div class="eyebrow">Practice · 15 Questions</div>
+  <h1 class="h1">Data Types, Operators &amp; Casting Challenge Bank</h1>
+  <p class="lead">Select an option for each question and verify your understanding with detailed explanations.</p>
+  <div id="questionbank" class="grid" style="grid-template-columns:1fr"></div>
+  <div class="callout"><b>Practice tip:</b> Trace operator precedence and operand types step-by-step from inside parentheses outward before picking an answer.</div>
+  <div class="footer"><span>15 questions · explanations included</span><span>11 / 11</span></div>
+</section>
+
+</main>
+<script>
+let index=0;
+const slides=[...document.querySelectorAll('.slide')];
+function show(n){
+  index=(n+slides.length)%slides.length;
+  slides.forEach((s,i)=>s.classList.toggle('active',i===index));
+  slides[index].scrollTop=0;
+  document.getElementById('bar').style.width=((index+1)/slides.length*100)+'%';
+  let counter=slides[index].querySelector('.footer span:last-child');
+  if(counter)counter.textContent=String(index+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');
+}
+document.getElementById('next').onclick=()=>show(index+1);
+document.getElementById('prev').onclick=()=>show(index-1);
+document.addEventListener('keydown',e=>{
+  if(document.activeElement.tagName==='TEXTAREA'||document.activeElement.tagName==='INPUT')return;
+  if(e.key==='ArrowRight')show(index+1);
+  if(e.key==='ArrowLeft')show(index-1);
+});
+
+let touchStartX=0,touchStartY=0;
+document.querySelector('.deck').addEventListener('touchstart',e=>{
+  touchStartX=e.changedTouches[0].screenX;
+  touchStartY=e.changedTouches[0].screenY;
+},{passive:true});
+document.querySelector('.deck').addEventListener('touchend',e=>{
+  let dx=e.changedTouches[0].screenX-touchStartX;
+  let dy=e.changedTouches[0].screenY-touchStartY;
+  if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.4){
+    if(dx<0)show(index+1);else show(index-1);
+  }
+},{passive:true});
+
+function runSim(){
+  let a=Math.trunc(Number(document.getElementById('opA').value));
+  let b=Math.trunc(Number(document.getElementById('opB').value));
+  if(b===0){
+    document.getElementById('intOut').textContent='Undefined (Div by 0)';
+    document.getElementById('intTrace').textContent='Division by zero is undefined in C++!';
+    document.getElementById('dblOut').textContent='inf / NaN';
+    document.getElementById('ovfTrace').textContent='Ensure divisor B is non-zero before dividing.';
+    return;
+  }
+  let q=Math.trunc(a/b), r=a%b, d=(a/b).toFixed(4);
+  let prod=BigInt(a)*BigInt(b);
+  let int32Max=2147483647n, int32Min=-2147483648n;
+  let overflow=(prod>int32Max||prod<int32Min);
+  document.getElementById('intOut').textContent=q+'  |  rem: '+r;
+  document.getElementById('intTrace').textContent=a+' / '+b+' = '+q+' (integer truncation), '+a+' % '+b+' = '+r;
+  document.getElementById('dblOut').textContent=d;
+  document.getElementById('ovfTrace').textContent=overflow
+    ? '⚠ Overflow! '+a+' * '+b+' = '+prod.toString()+' exceeds 32-bit int max (2,147,483,647). Use long long!'
+    : 'Product A * B = '+prod.toString()+' (fits safely in 32-bit int)';
+}
+
+function showHint(){document.getElementById('hint').classList.remove('hide')}
+function clearPractice(){document.getElementById('practice').value='';document.getElementById('hint').classList.add('hide')}
+function checkQuiz(){
+  let v=document.querySelector('input[name="quiz"]:checked');
+  let f=document.getElementById('quizfeedback');
+  if(!v){f.textContent='Select an answer first.';f.style.color='var(--gold)';return;}
+  let ok=v.value==='b';
+  f.textContent=ok
+    ?'Correct! 9 / 2 evaluates as integer division first (= 4), then 4 + 1.5 = 5.5.'
+    :'Not quite. / has higher precedence than +, and 9 / 2 divides two ints (= 4) before adding 1.5.';
+  f.style.color=ok?'var(--green)':'var(--gold)';
+}
+
+const bank=[
+  {q:'1. Which C++ data type safely stores a product like 100,000 × 100,000 without overflowing?',o:['int','short','long long','char'],a:2,e:'100,000 × 100,000 = 10,000,000,000 (10^10), which exceeds the ~2.14 × 10^9 limit of a 32-bit int. long long holds up to ~9.22 × 10^18.'},
+  {q:'2. How many bytes does a standard double typically occupy in modern C++?',o:['2 bytes','4 bytes','8 bytes','16 bytes'],a:2,e:'A double occupies 8 bytes (64 bits) and provides ~15–17 significant decimal digits of precision.'},
+  {q:'3. What is the output of cout << (15 / 4); in C++?',o:['3.75','3','4','3.0'],a:1,e:'Because both 15 and 4 are integers, C++ performs integer division and truncates the fractional .75, resulting in 3.'},
+  {q:'4. Which expression accurately computes the percentage for int marks = 45, total = 60?',o:['(marks / total) * 100','static_cast<double>(marks) / total * 100','static_cast<double>(marks / total) * 100','marks % total * 100'],a:1,e:'Casting marks to double before dividing forces floating-point division (45.0 / 60 = 0.75), giving 75.0. Casting after (marks / total) is too late because 45 / 60 already became 0.'},
+  {q:'5. If int x = 5; what does cout << x++ << " " << ++x; conceptually illustrate about prefix vs postfix?',o:['Postfix increments before returning; prefix increments after','Postfix returns old value then increments; prefix increments first then returns','Both always return 6','Neither modifies x'],a:1,e:'x++ (postfix) yields the current value before incrementing, whereas ++x (prefix) increments first and yields the updated value.'},
+  {q:'6. What is the result of 10 + 6 * 2 - 4 / 2?',o:['20','30','14','18'],a:0,e:'* and / have higher precedence than + and -: 6 * 2 = 12 and 4 / 2 = 2. Then 10 + 12 - 2 = 20.'},
+  {q:'7. In if (b != 0 && a / b > 5), what happens when b is 0?',o:['It crashes with division by zero','&& short-circuits at b != 0 and skips a / b','&& converts b to 1','It returns true'],a:1,e:'With logical AND (&&), if the left operand is false, the right operand is never evaluated.'},
+  {q:'8. What is the difference between = and == in C++?',o:['Both test equality','= assigns a value; == compares two values for equality','== assigns a value; = compares values','They are interchangeable'],a:1,e:'Single = is the assignment operator, while double == is the relational equality comparison operator.'},
+  {q:'9. What does the bitwise expression (6 & 3) evaluate to? (6 = 0110, 3 = 0011)',o:['7','2','5','0'],a:1,e:'Bitwise AND compares each bit: 0110 & 0011 = 0010, which equals 2 in decimal.'},
+  {q:'10. What does left-shifting a positive integer by 1 bit (n << 1) effectively do?',o:['Divides n by 2','Adds 1 to n','Multiplies n by 2','Flips all bits of n'],a:2,e:'Shifting bits one position to the left multiplies the integer value by 2^1 = 2.'},
+  {q:'11. Which operator checks whether an integer n is odd using bitwise logic?',o:['(n | 1) == 0','(n & 1) == 1','(n ^ 1) == 0','~n == 1'],a:1,e:'The least significant bit of every odd binary number is 1, so n & 1 evaluates to 1.'},
+  {q:'12. What is the output of cout << (true || false && false);?',o:['0 (false)','1 (true)','Compile error','2'],a:1,e:'&& has higher precedence than ||, so false && false evaluates to false first. Then true || false evaluates to true (1).'},
+  {q:'13. When multiplying two int variables a = 50000 and b = 50000 into long long ans, which statement is safe?',o:['long long ans = a * b;','long long ans = 1LL * a * b;','long long ans = (long long)(a * b);','int ans = a * b;'],a:1,e:'Multiplying by 1LL first promotes the arithmetic to long long before a * b is computed, preventing intermediate 32-bit overflow.'},
+  {q:'14. What is the output of cout << (19 % 5); in C++?',o:['3','4','3.8','1'],a:1,e:'The modulo operator (%) returns the remainder after integer division: 19 = 5 × 3 + 4, so the remainder is 4.'},
+  {q:'15. What is the value of double res = 5 / 2; in C++?',o:['2.5','2.0','3.0','0.0'],a:1,e:'5 / 2 divides two integers first (yielding 2), and only then converts 2 into double 2.0 during assignment.'}
+];
+
+const qb=document.getElementById('questionbank');
+bank.forEach((item,i)=>{
+  let card=document.createElement('div');
+  card.className='card';
+  card.innerHTML='<h3>'+item.q+'</h3>'+item.o.map((opt,j)=>'<label class="quiz-option"><input type="radio" name="bank'+i+'" value="'+j+'"> '+opt+'</label>').join('')+'<button class="button primary" onclick="checkBank('+i+')">Check answer</button><div class="feedback" id="bankfb'+i+'"></div>';
+  qb.appendChild(card);
+});
+function checkBank(i){
+  let v=document.querySelector('input[name="bank'+i+'"]:checked'),f=document.getElementById('bankfb'+i);
+  if(!v){f.textContent='Choose an option first.';f.style.color='var(--gold)';return;}
+  let ok=Number(v.value)===bank[i].a;
+  f.innerHTML=(ok?'✓ Correct! ':'✗ Not quite. ')+'<br><b>Correct answer:</b> '+bank[i].o[bank[i].a]+'<br><b>Explanation:</b> '+bank[i].e;
+  f.style.color=ok?'var(--green)':'var(--gold)';
+}
+
+show(0);
+</script></body></html>
